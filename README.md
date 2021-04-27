@@ -11,7 +11,7 @@ Qingmin Kuang and Gang Shi (gshi@xidian.edu.cn)
 + [zlib] (https://www.zlib.net/)
 
 ## Installation
-The archive includes an executable binary "asa" pre-compiled under CentOS8.0 (x86-64). To compile from source code, edit the Makefile to point EIGEN_PATH and MKL_PATH to your own locations of EIGEN3 and MKL and type "make".
+The archive includes an executable binary "asa" pre-compiled under CentOS8.0 (x86-64). To compile from source code, edit the Makefile to point EIGEN_PATH and MKL_PATH to your own locations of EIGEN3 and MKL, then type "make".
 
 ## Usage
 Type "./asa --help" from the command line to display program options:
