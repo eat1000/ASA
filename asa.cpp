@@ -16,7 +16,7 @@ void help()
 	cout << "Option\t\tFunction" << endl;
 	cout << "--bfile\t\t" << "Input genotype file in plink binary format." << endl;
 	cout << "--ifile\t\t" << "Input information file of a panel of population specific SNPs. The file is expected to have three columns without headers:" << endl;
-	cout << "\t\t" << "the first is SNP ID, the second is population that the SNP is polymorphic in, and the third is MAF of the SNP in the population." << endl;
+	cout << "\t\t" << "the first is SNP ID, the second is population that the SNP is specific to, and the third is MAF of the SNP in the population." << endl;
 	cout << "--out\t\t" << "Output file name (default: asa)." << endl;
 	cout << "--aiv\t\t" << "Calculate and output ancestral information vectors by the method of moment estimate." << endl;
 	cout << "--mle\t\t" << "Calculate and output ancestral information vectors by the approximated maximum likelihood estimate." << endl;
