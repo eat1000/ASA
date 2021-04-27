@@ -2,10 +2,7 @@
 Ancestral Spectrum Analyzer (ASA) is a program for ancestry inference as well as analysis of population structure with population specific SNPs.
 
 ## Author
-Qingmin Kuang and Gang Shi
-
-## Contact
-gshi@xidian.edu.cn
+Qingmin Kuang and Gang Shi (gshi@xidian.edu.cn)
 
 ## Dependencies
 + [EIGEN] (https://eigen.tuxfamily.org)
@@ -14,13 +11,13 @@ gshi@xidian.edu.cn
 + [zlib] (https://www.zlib.net/)
 
 ## Install
-The archive includes an executable binary “asa” pre-compiled under CentOS8.0 (x86-64). 
+The archive includes an executable binary "asa" pre-compiled under CentOS8.0 (x86-64). 
 
 ## Compile
-Edit the Makefile to point EIGEN_PATH and MKL_PATH to your own locations of EIGEN3 and MKL. Type “make” to compile the executable binary.
+Edit the Makefile to point EIGEN_PATH and MKL_PATH to your own locations of EIGEN3 and MKL. Type "make" to compile the executable binary.
 
 ## Usage
-Type “./asa --help” from the command line to display program options:
+Type "./asa --help" from the command line to display program options:
 
     --bfile		Input genotype file in plink binary format.
     --ifile		Input information file of a panel of population specific SNPs. The file is expected to have three columns without headers: the first is SNP ID, the second is population that the SNP is specific to, and the third is MAF of the SNP in the population.
