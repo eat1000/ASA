@@ -744,8 +744,8 @@ void ASA::snp_info_input(string ifile)
     cout << info_snp_num << " SNPs loaded from the information file [" << ifile << "]." << endl;
     writeLOG << info_snp_num << " SNPs loaded from the information file [" << ifile << "]." << endl;
     int info_pop_num = info_pop_set.size();
-    cout << info_pop_num << " populations found in the information file, population ID and number of the population specific SNPs are " << endl;
-    writeLOG << info_pop_num << " populations found in the information file, population ID and number of the population specific SNPs are " << endl;
+    cout << info_pop_num << " populations found in the information file, population ID and number of the population-specific SNPs are " << endl;
+    writeLOG << info_pop_num << " populations found in the information file, population ID and number of the population-specific SNPs are " << endl;
 
     unordered_set<string>::iterator it;
     for (it = info_pop_set.begin(); it != info_pop_set.end(); ++ it)
@@ -1025,8 +1025,8 @@ void ASA::psv_output(string ofile)
 
 void ASA::make_X_aiv(string binfilename, int size)
 {
-    cout << "Calculating ancestral information vectors... " << flush;
-    writeLOG << "Calculating ancestral information vectors... ";
+    cout << "Calculating ancestral information vectors by the method of moment... " << flush;
+    writeLOG << "Calculating ancestral information vectors by the method of moment... ";
     eigenMatrix b, c;
 
     b.setZero(snp_num, pop_num);
@@ -1236,8 +1236,8 @@ void ASA::aiv_output(string ofile)
 
 void ASA::make_X_mle(string binfilename, int size)
 {
-    cout << "Calculating maximum likelihood emtimates of ancestral information vectors... " << flush;
-    writeLOG << "Calculating maximum likelihood estimates of ancestral information vectors... ";
+    cout << "Calculating ancestral information vectors by the approximate maximum likelihood emtimate... " << flush;
+    writeLOG << "Calculating ancestral information vectors by the approximate maximum likelihood emtimate... ";
     eigenMatrix a, b, c, aiv_a, aiv_b, aiv_c;
 
     a.setZero(snp_num, pop_num);
