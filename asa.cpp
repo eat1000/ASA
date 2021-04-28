@@ -13,13 +13,12 @@ void cover()
 void help()
 {
 	cover();
-	cout << "Option\t\tFunction" << endl;
 	cout << "--bfile\t\t" << "Input genotype file in plink binary format." << endl;
-	cout << "--ifile\t\t" << "Input information file of a panel of population specific SNPs. The file is expected to have three columns without headers:" << endl;
+	cout << "--ifile\t\t" << "Input information file of a panel of population-specific SNPs. The file is expected to have three columns without headers:" << endl;
 	cout << "\t\t" << "the first is SNP ID, the second is population that the SNP is specific to, and the third is MAF of the SNP in the population." << endl;
 	cout << "--out\t\t" << "Output file name (default: asa)." << endl;
 	cout << "--aiv\t\t" << "Calculate and output ancestral information vectors by the method of moment estimate." << endl;
-	cout << "--mle\t\t" << "Calculate and output ancestral information vectors by the approximated maximum likelihood estimate." << endl;
+	cout << "--mle\t\t" << "Calculate and output ancestral information vectors by the approximate maximum likelihood estimate." << endl;
 	cout << "--psv\t\t" << "Calculate and output principal score vectors." << endl;
 	cout << "--pca\t\t" << "Perform PCA and output top n eigenvectors, eigenvalues and PCs (default: n = 20)." << endl;
 	cout << "--freq\t\t" << "Calculate and output allele frequencies." << endl;
@@ -409,15 +408,15 @@ int main(int argc, char* argv[])
 	
     if(psv_flag && !ifile_flag)
     {
-        cout << "ERROR: information file of a panel of population specific SNPs is necessary for calculating the population score vectors, use --ifile to specify it." << endl;
-        data.writeLOG << "ERROR: information file of a panel of population specific SNPs is necessary for calculating the population score vectors, use --ifile to specify it." << endl;
+        cout << "ERROR: information file of a panel of population-specific SNPs is necessary for calculating the population score vectors, use --ifile to specify it." << endl;
+        data.writeLOG << "ERROR: information file of a panel of population-specific SNPs is necessary for calculating the population score vectors, use --ifile to specify it." << endl;
         exit(0);
     }
 	
     if((aiv_flag || mle_flag) && !ifile_flag)
     {
-	cout << "ERROR: information file of a panel of population specific SNPs is necessary for calculating the ancestral information vectors, use --ifile to specify it." << endl;
-	data.writeLOG << "ERROR: information file of a panel of population specific SNPs is necessary for calculating the ancestral information vectors, use --ifile to specify it.." << endl;
+	cout << "ERROR: information file of a panel of population-specific SNPs is necessary for calculating the ancestral information vectors, use --ifile to specify it." << endl;
+	data.writeLOG << "ERROR: information file of a panel of population-specific SNPs is necessary for calculating the ancestral information vectors, use --ifile to specify it.." << endl;
 	exit(0);
     }
 
