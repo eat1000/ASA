@@ -2,7 +2,7 @@
 Ancestral Spectrum Analyzer (ASA) is a program for ancestry inference as well as analysis of population structure with population-specific SNPs.
 
 ## Authors
-
+Qingmin Kuang, Gang Shi (gshi@xidian.edu.cn)
 
 ## Dependencies
 + [EIGEN] (https://eigen.tuxfamily.org)
@@ -33,4 +33,4 @@ Type "./asa --help" from the command line to display program options:
     --thread-num	Number of threads on which the program will be running (default: thread number in your machine).
 
 ## Citation
-Ancestral spectrum analysis with population-specific variants. In submission.
+Gang Shi, Qingmin Kuang. Ancestral spectrum analysis with population-specific variants. In submission.
