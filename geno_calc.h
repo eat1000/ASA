@@ -20,12 +20,14 @@
 #include <Eigen/Dense>
 #include <bitset>
 #include <boost/dynamic_bitset.hpp>
+#include <boost/algorithm/string.hpp>
 #include <stdlib.h>
 #include <map>
 #include <thread>
 #include <iomanip>
 #include <zlib.h>
 #include <unordered_set>
+#include <getopt.h>
 
 using namespace boost;
 using namespace Eigen;

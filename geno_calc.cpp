@@ -4,7 +4,7 @@ void ASA::allele_info_stat(string binfilename, double thre_num, double low_MAF, 
 {
     ifstream famfile, bimfile;
     string thisline;
-    char *p;
+    vector<string> parsedline;
 
     bedfile.open((binfilename + ".bed").c_str(), ios::in | ios::binary);
     famfile.open((binfilename + ".fam").c_str(), ios::in);
@@ -33,10 +33,9 @@ void ASA::allele_info_stat(string binfilename, double thre_num, double low_MAF, 
 	
     while (getline(famfile, thisline, '\n'))
     {
-        p = strtok(&thisline[0], delimiter);
-        famid.push_back(p);
-        p = strtok(NULL, delimiter);
-        subid.push_back(p);
+        split(parsedline, thisline, is_any_of(delimiter));
+        famid.push_back(parsedline[0]);
+        subid.push_back(parsedline[1]);
     }
 
     indi_num = subid.size();
@@ -46,17 +45,12 @@ void ASA::allele_info_stat(string binfilename, double thre_num, double low_MAF, 
 	
     while (getline(bimfile, thisline, '\n'))
     {
-        p = strtok(&thisline[0], delimiter);
-        chrom.push_back(atoi(p));
-        p = strtok(NULL, delimiter);
-        snp.push_back(p);
-        p = strtok(NULL, delimiter);
-        p = strtok(NULL, delimiter);
-        position.push_back(atoi(p));
-        p = strtok(NULL, delimiter);
-        allele1.push_back(p);
-        p = strtok(NULL, delimiter);
-        allele2.push_back(p);
+        split(parsedline, thisline, is_any_of(delimiter));
+        chrom.push_back(atoi(parsedline[0].c_str()));
+        snp.push_back(parsedline[1]);
+        position.push_back(atoi(parsedline[3].c_str()));
+        allele1.push_back(parsedline[4]);
+        allele2.push_back(parsedline[5]);
     }
 	
     snp_num = snp.size();
@@ -680,6 +674,7 @@ void ASA::grm_eigvec_pc_eigval_output(string eigval_ofile, string eigvec_ofile, 
 void ASA::snp_info_check(string ifile)
 {
     string thisline;
+    vector<string> parsedline;
     infofile.open(ifile.c_str(), ios::in);
     if(!infofile)
     {
@@ -689,14 +684,8 @@ void ASA::snp_info_check(string ifile)
     }
     int info_col_num = 0;
     getline(infofile, thisline, '\n');
-    char *p = strtok(&thisline[0], delimiter);
-	
-    while(p != NULL)
-    {
-        ++ info_col_num;
-        p = strtok(NULL, delimiter);
-    }
-	
+    split(parsedline, thisline, is_any_of(delimiter));
+    info_col_num = parsedline.size();
     infofile.close(); 
 
     if (info_col_num < 3)
@@ -714,27 +703,24 @@ void ASA::snp_info_input(string ifile)
     writeLOG << "Reading SNP information file [" << ifile << "]... " ;
     int record_num;
     string thisline, this_snp;
-    vector <string> info_snp, info_diff_pop;
+    vector <string> parsedline, info_snp, info_diff_pop;
     vector <int> info_pop_snp_num;
     multimap<string, int> info_pop_snp;
-    unordered_set<string> pop_set, info_pop_set;
+    set<string> pop_set, info_pop_set;
     unordered_multiset<string> info_pop_multiset;
-    char *p;
 
     infofile.open(ifile.c_str(), ios::in);
     info_snp_num = 0;
     while (getline(infofile, thisline, '\n'))
     {
-        p = strtok(&thisline[0], delimiter);
-	this_snp = p;
+	split(parsedline, thisline, is_any_of(delimiter));
+	this_snp = parsedline[0];
 	info_pop_snp.insert(multimap<string, int>::value_type(this_snp, info_snp_num));
 	info_snp.push_back(this_snp);
-	p = strtok(NULL, delimiter);
-	info_pop.push_back(p);
-	info_pop_set.insert(p);
-	info_pop_multiset.insert(p);
-	p = strtok(NULL, delimiter);
-	info_pop_maf.push_back(atof(p));
+	info_pop.push_back(parsedline[1]);
+	info_pop_set.insert(parsedline[1]);
+	info_pop_multiset.insert(parsedline[1]);
+	info_pop_maf.push_back(atof(parsedline[2].c_str()));
         ++ info_snp_num;
     }
     infofile.close(); 	
@@ -747,7 +733,7 @@ void ASA::snp_info_input(string ifile)
     cout << info_pop_num << " populations found in the information file, population ID and number of the population-specific SNPs are " << endl;
     writeLOG << info_pop_num << " populations found in the information file, population ID and number of the population-specific SNPs are " << endl;
 
-    unordered_set<string>::iterator it;
+    set<string>::iterator it;
     for (it = info_pop_set.begin(); it != info_pop_set.end(); ++ it)
     {
 	info_diff_pop.push_back(*it);
@@ -773,8 +759,8 @@ void ASA::snp_info_input(string ifile)
 	}
 	if (info_pop_maf[i] <= 0 || info_pop_maf[i] > 0.5)
 	{
-	    cout << "ERROR: MAF value " << info_pop_maf[info_snp_num] << " was found for SNP " << info_snp[i]  << "." << endl;
-	    writeLOG << "ERROR: MAF value " << info_pop_maf[info_snp_num] << " was found for SNP " << info_snp[i] << "." << endl;
+	    cout << "ERROR: MAF value " << info_pop_maf[i] << " was found for SNP " << info_snp[i]  << "." << endl;
+	    writeLOG << "ERROR: MAF value " << info_pop_maf[i] << " was found for SNP " << info_snp[i] << "." << endl;
 	    exit(0);
 	}
     }
@@ -1000,7 +986,6 @@ void ASA::psv_output(string ofile)
 
     writefile << "ID_1" << "\t" << "ID_2";
 
-    unordered_set<string>::iterator it;
     for (int j = 0; j < pop_num; ++ j)
     {
         writefile << "\t" << diff_pop[j];
@@ -1211,7 +1196,6 @@ void ASA::aiv_output(string ofile)
 
     writefile << "ID_1" << "\t" << "ID_2";
 
-    unordered_set<string>::iterator it;
     for (int j = 0; j < pop_num; ++ j)
     {
         writefile << "\t" << diff_pop[j];
@@ -1420,7 +1404,6 @@ void ASA::mle_output(string ofile)
 
     writefile << "ID_1" << "\t" << "ID_2";
 
-    unordered_set<string>::iterator it;
     for (int j = 0; j < pop_num; ++ j)
     {
         writefile << "\t" << diff_pop[j];
