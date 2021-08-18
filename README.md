@@ -1,5 +1,5 @@
 # ASA
-Ancestral Spectrum Analyzer (ASA) is a program for ancestry inference as well as analysis of population structure with population-specific SNPs. It comes with Population-Specific SNP Screener (PSNPS), which can be used for identifying and selecting population-specific SNPs in reference populations.
+Ancestral Spectrum Analyzer (ASA) is a program for ancestry inference as well as analysis of population structure with population-specific SNPs. It comes with a utility, Population-Specific SNP Screener (PSNPS), which can be used for identifying and selecting population-specific SNPs in reference populations.
 
 ## Authors
 Qingmin Kuang, Gang Shi (gshi@xidian.edu.cn)
