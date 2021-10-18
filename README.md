@@ -47,4 +47,4 @@ Type "./psnps --help" from the command line to display program options of PSNPS:
     --thread-num	Number of threads on which the program will be running [default: thread number in your machine - 1].
     
 ## Citation
-Gang Shi, Qingmin Kuang. Ancestral spectrum analysis with population-specific variants. Front Genet. In Revision.
+Shi G, Kuang Q. Ancestral spectrum analysis with population-specific variants. Front Genet. 2021;12:724638.
