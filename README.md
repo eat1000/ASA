@@ -36,7 +36,7 @@ Type "./psnps --help" from the command line to display program options of PSNPS:
 
     --bfile		Input genotype file in plink binary format.
     --ref-pop	Input file that describes reference populations. The file is expected to have two columns without headers: the first is individual ID and the second is the population that the individual belongs to.
-    --pop		Screen SNPs that are specific to the specified population. If multiple populations are specified, SNPs polymorphic in all specified populations and monmophic in unspecified populations will be found.
+    --pop		Screen SNPs that are specific to the specified population. If multiple populations are specified, SNPs polymorphic in specified populations and monmophic in unspecified populations will be found.
     --snp-num	Number of population-specific SNPs to be saved [default: all SNPs specific to the specified population(s)].
     --freq		Calculate and output allele frequencies in the reference populations.
     --out		Output file for saving population-specific SNPs or allele frequencies [default: psnps].
