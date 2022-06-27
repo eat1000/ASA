@@ -16,17 +16,17 @@ The archive includes executable binary "asa" and "psnps" pre-compiled under Cent
 ## Usage
 Type "./asa --help" from the command line to display program options of ASA:
 
---bfile		Input genotype file in plink binary format.
---ifile		Input file that defines a panel of population-specific SNPs. The file is expected to have five columns without headers, which are SNP ID, population that the SNP is specific to, MAF in the population, minor and major alleles in reference populations.
---out		Output file name [default: asa].
---aiv		Calculate and output ancestral information vectors by the method of moment estimate.
---mle		Calculate and output ancestral information vectors by the approximate maximum likelihood estimate.
---psv		Calculate and output principal score vectors.
---pca		Perform PCA and output top n eigenvectors, eigenvalues and PCs [default: n = 20].
---grm		Calculate and output genetic relationship matrix.
---batch-size	Number of SNPs to be processed in a batch [default: 10000].
---thread-num	Number of threads on which the program will be running [default: thread number in your machine - 1].
---match-alleles	Both minor and major alleles of the population-specific SNPs have to match the two alleles in the BIM file [default: as least one allele of the population-specific SNPs has to match one of the two alleles in the BIM file].
+	--bfile		Input genotype file in plink binary format.
+	--ifile		Input file that defines a panel of population-specific SNPs. The file is expected to have five columns without headers, which are SNP ID, population that the SNP is specific to, MAF in the population, minor and major alleles in reference populations.
+	--out		Output file name [default: asa].
+	--aiv		Calculate and output ancestral information vectors by the method of moment estimate.
+	--mle		Calculate and output ancestral information vectors by the approximate maximum likelihood estimate.
+	--psv		Calculate and output principal score vectors.
+	--pca		Perform PCA and output top n eigenvectors, eigenvalues and PCs [default: n = 20].
+	--grm		Calculate and output genetic relationship matrix.
+	--batch-size	Number of SNPs to be processed in a batch [default: 10000].
+	--thread-num	Number of threads on which the program will be running [default: thread number in your machine - 1].
+	--match-alleles	Both minor and major alleles of the population-specific SNPs have to match the two alleles in the BIM file [default: as least one allele of the population-specific SNPs has to match one of the two alleles in the BIM file].
     
 Type "./psnps --help" from the command line to display program options of PSNPS:
 
