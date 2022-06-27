@@ -25,12 +25,12 @@ using namespace boost;
 class Dataset {
 private:
 const char* delimiter = " \t";
-vector<string> pop_name, nonpop_name, famid, subid, chrom, snp, allele1, allele2, MA, ref_id, ref_pop, ref_pop_name;
+vector<string> pop_name, nonpop_name, famid, subid, chrom, snp, allele1, allele2, ref_id, ref_pop, ref_pop_name;
 vector<int> position, ref_pop_cnt, id_pop, pop_pos, nonpop_pos, pop_snp_idx;
 vector<bool> snp_pop;
 vector<vector<int>> allele1_cnt, miss_cnt;
 vector<vector<double>> miss_frq, maf;
-int pop_num, nonpop_num, batch_size, indi_num, snp_num, remain_snp_num, ref_indi_num, ref_pop_num, pop_snp_num, out_snp_num, max_thread_num;
+int pop_num, nonpop_num, batch_size, indi_num, snp_num, remain_snp_num, ref_indi_num, ref_pop_num, pop_snp_num, out_snp_num, max_thread_num, dist_min;
 double maf_min, maf_max, miss_max;
 bool error_flag = false;	
 string bed_file, fam_file, bim_file, ref_file, out_file;	
@@ -55,12 +55,14 @@ void help()
 	cout << "--pop\t\t" << "Screen SNPs that are specific to the specified population." << endl;
 	cout << "\t\t" << "If multiple populations are specified, SNPs polymorphic in all specified populations and monmophic in unspecified populations will be found." << endl;
 	cout << "--snp-num\t" << "Number of population-specific SNPs to be saved [default: all SNPs specific to the specified population(s)]." << endl;
+	cout << "--random-seed\t" << "Set a random seed for selecting the population-specific SNPs to be saved." << endl;
 	cout << "--freq\t\t" << "Calculate and output allele frequencies in the reference populations." << endl;
 	cout << "--out\t\t" << "Output file for saving population-specific SNPs or allele frequencies [default: psnps]." << endl;
 	cout << "--maf-min\t" << "Exclude SNPs with MAFs smaller than the specified value in the population(s) specified by --pop [default: 0]." << endl;
 	cout << "\t\t" << "Minor alleles are determined by the total samples of the reference populations." << endl;
 	cout << "--maf-max\t" << "Exclude SNPs with MAFs larger than the specified value in the population(s) specified by --pop [default: 0.5]." << endl;
 	cout << "--miss-max\t" << "Exclude SNPs with missing rates larger than the specified value in the reference populations [default: 0]." << endl;
+	cout << "--dist-min\t" << "Exclude SNPs with distances from previous ones less than or equal to the specified value [default: 0]." << endl;
 	cout << "--batch-size\t" << "Number of SNPs to be processed in a batch [default: 10000]." << endl;
 	cout << "--thread-num\t" << "Number of threads on which the program will be running [default: thread number in your machine - 1]." << endl;
 }
@@ -83,6 +85,8 @@ Dataset(int argc, char *argv[])
 		{ "snp-num", required_argument, NULL, 9},
 		{ "thread-num", required_argument, NULL, 10},
 		{ "help", no_argument, NULL, 11},
+		{ "dist-min", required_argument, NULL, 12},
+		{ "random-seed", no_argument, NULL, 13},
 		{0, 0, 0, 0}
 	};
 
@@ -113,6 +117,8 @@ Dataset(int argc, char *argv[])
 		case 9: flag[9] = 1; arg[9] = optarg; break;
 		case 10: flag[10] = 1; arg[10] = optarg; break;
 		case 11:  help(); exit(0); break;
+		case 12: flag[12] = 1; arg[12] = optarg; break;
+		case 13: flag[13] = 1; break;
 		default: break;
 		}
 	}
@@ -144,7 +150,7 @@ Dataset(int argc, char *argv[])
 		cout << endl;
 		logFile << endl;
 	}
-	for (int i = 4; i < 8; i++)
+	for (int i = 4; i < 7; i++)
 	{
 		if (flag[i] == 1) 
 		{
@@ -152,12 +158,40 @@ Dataset(int argc, char *argv[])
 			logFile << "--" << long_options[i].name << " " << arg[i] << endl;
 		}
 	}
+	if (flag[7] == 1) 
+	{
+		cout << "--" << long_options[7].name << " " << arg[7] << endl;
+		logFile << "--" << long_options[7].name << " " << arg[7] << endl;
+	}
+	if (flag[12] == 1) 
+	{
+		cout << "--" << long_options[12].name << " " << arg[12] << endl;
+		logFile << "--" << long_options[12].name << " " << arg[12] << endl;
+		dist_min =  atoi(arg[12].c_str());
+		if (dist_min < 0)
+		{
+			cout << "ERROR: --dist-min should be larger or equal to 0." << endl;
+			logFile << "ERROR: --dist-min should be larger or equal to 0." << endl;
+			error_flag = true;
+		}
+	}
+	else dist_min = 0;
 	if (flag[8] == 1) 
 	{
 		cout << "--" << long_options[8].name << endl;
 		logFile << "--" << long_options[8].name << endl;
 	}
-	for (int i = 9; i < 11; i++)
+	if (flag[9] == 1) 
+	{
+		cout << "--" << long_options[9].name << " " << arg[9] << endl;
+		logFile << "--" << long_options[9].name << " " << arg[9] << endl;
+	}
+	if (flag[13] == 1) 
+	{
+		cout << "--" << long_options[13].name << endl;
+		logFile << "--" << long_options[13].name << endl;
+	}
+	for (int i = 10; i < 11; i++)
 	{
 		if (flag[i] == 1) 
 		{
@@ -354,6 +388,8 @@ void readFAM()
 
 void readBIM()
 {
+	int chrom_this, pos_this;
+	int i = 0, chrom_last = -1, pos_last = -1, sex_snp_num = 0, pos_del_num = 0, miss_allele_num = 0;
 	string thisline;
 	vector<string> parsedline;
 	cout << "Loading BIM file [" + bim_file + "]... " << flush;
@@ -366,18 +402,51 @@ void readBIM()
 	position.resize(snp_num);
 	allele1.resize(snp_num);
 	allele2.resize(snp_num);
-	int i = 0;
+	snp_pop.resize(snp_num, true);
 	bimfile.clear();
 	bimfile.seekg(0, ios::beg);
 	while (getline(bimfile, thisline, '\n'))
 	{
 		split(parsedline, thisline, is_any_of(delimiter));
+		chrom_this = atoi(parsedline[0].c_str());
 		chrom[i] = parsedline[0];
 		snp[i] = parsedline[1];
-		position[i] = atoi((parsedline[3]).c_str());
+		pos_this = atoi(parsedline[3].c_str());
+		position[i] = pos_this;
 		allele1[i] = parsedline[4];
 		allele2[i] = parsedline[5];
-		i ++;
+		if (allele1[i] == "*" || allele1[i] == "." || allele2[i] == "*" || allele2[i] == ".")
+		{
+			snp_pop[i] = false;
+			miss_allele_num++;
+		}
+		if (chrom_this < 1 || chrom_this > 22)
+		{
+			snp_pop[i] = false;
+			sex_snp_num++;
+		}
+		if (chrom_this == chrom_last && pos_this == pos_last)
+		{
+			snp_pop[i] = false;
+			pos_del_num++;
+			if (snp_pop[i - 1])
+			{
+				snp_pop[i - 1] = false;
+				pos_del_num++;
+			}
+			i ++;
+			continue;
+		}
+		else if (chrom_this == chrom_last && pos_this - pos_last <= dist_min)
+		{
+			snp_pop[i] = false;
+			pos_del_num++;
+			i ++;
+			continue;
+		}
+		chrom_last = chrom_this;
+		pos_last = pos_this;
+		i++;
 	}
 	bimfile.close();
 	snp_num = snp.size();
@@ -385,6 +454,21 @@ void readBIM()
 	logFile << "done." << endl;
 	cout << snp_num << " SNPs loaded from BIM file [" + bim_file + "]." << endl;
 	logFile << snp_num << " SNPs loaded from BIM file [" + bim_file + "]." << endl;
+	if (pos_del_num > 0)
+	{
+		cout << pos_del_num << " SNPs removed due to their distances from previous ones less then or equal to " << dist_min << "." << endl;
+		logFile << pos_del_num << " SNPs removed due to their distances from previous ones less then or equal to " << dist_min << "." << endl;
+	}
+	if (sex_snp_num > 0)
+	{
+		cout << sex_snp_num << " SNPs on sex chromosomes removed." << endl;
+		logFile << sex_snp_num << "SNPs on sex chromosomes removed." << endl;
+	}
+	if (miss_allele_num > 0)
+	{
+		cout << miss_allele_num << " SNPs removed due to missing allele information." << endl;
+		logFile << miss_allele_num << " SNPs removed due to missing allele information." << endl;
+	}
 }
 
 void readREF()
@@ -490,7 +574,6 @@ void allele_stat()
 {
 	allele1_cnt.resize(snp_num);
 	maf.resize(snp_num);
-	MA.resize(snp_num);
 	miss_cnt.resize(snp_num);
 	miss_frq.resize(snp_num);
 	char tmp1char[1];
@@ -526,11 +609,13 @@ void allele_stat()
 			maf[i].resize(ref_pop_num);
 			miss_cnt[i].resize(ref_pop_num);
 			miss_frq[i].resize(ref_pop_num);
+			string str_tmp;
 			for (int j = 0; j < ref_pop_num; j++)
 			{
 				allele1_cnt[i][j] = 0;
 				miss_cnt[i][j] = 0;
 			}
+			if (!snp_pop[i]) continue;
 			int pos = (line_byte_size) * (i - snp_start) * 8;
 			for (int j = 0; j < indi_num; ++ j)
 			{
@@ -563,10 +648,16 @@ void allele_stat()
 			double allele1_total = accumulate(allele1_cnt[i].begin(), allele1_cnt[i].end(), 0);
 			int miss_total = accumulate(miss_cnt[i].begin(), miss_cnt[i].end(), 0);
 			double A1freq = 0.0;
-			if (miss_total != ref_indi_num) A1freq = allele1_total / double(ref_indi_num - miss_total) / 2.0;
+			if (miss_total != ref_indi_num) A1freq = double(allele1_total) / double(ref_indi_num - miss_total) / 2.0;
+			if (A1freq > 0.5)
+			{
+				str_tmp = allele2[i];
+				allele2[i] = allele1[i];
+				allele1[i] = str_tmp;
+			}
 			for (int k = 0; k < ref_pop_num; k++)
 			{
-				if(miss_cnt[i][k] == ref_pop_cnt[k])
+				if (miss_cnt[i][k] == ref_pop_cnt[k])
             				{
 					maf[i][k] = 0.0;
 					miss_frq[i][k] = 1.0;
@@ -574,16 +665,8 @@ void allele_stat()
 				else
 				{
 					maf[i][k] = double(allele1_cnt[i][k]) / double(ref_pop_cnt[k] - miss_cnt[i][k]) / 2.0;
-					miss_frq[i][k] = double(miss_cnt[i][k]) / ref_pop_cnt[k];
-				}
-				if(A1freq > 0.5)
-				{
-					MA[i] = allele2[i];
-					if(miss_cnt[i][k] < ref_pop_cnt[k]) maf[i][k] = 1.0 - maf[i][k];
-				}
-				else
-				{
-					MA[i] = allele1[i];
+					if (A1freq > 0.5) maf[i][k] = 1.0 - maf[i][k];
+					miss_frq[i][k] = double(miss_cnt[i][k]) / double(ref_pop_cnt[k]);
 				}
 			}
 		}
@@ -591,22 +674,18 @@ void allele_stat()
 	delete [] batch_char;
 	bedfile.close();
 
-	int low_MAF_num = 0;
-	int high_MAF_num = 0;
-	int miss_frq_num = 0;
+	int low_MAF_num = 0, high_MAF_num = 0, miss_frq_num = 0;
 	remain_snp_num = 0;
-	snp_pop.resize(snp_num);
 	for(int i = 0; i < snp_num; ++ i)
 	{
-		snp_pop[i] = true;
 		for (int j = 0; j < pop_num; j++)
 		{
-			if(maf[i][pop_pos[j]] < maf_min)
+			if (maf[i][pop_pos[j]] < maf_min)
 			{
 				low_MAF_num ++;
 				snp_pop[i] = false;
 			}
-			if(maf[i][pop_pos[j]] > maf_max)
+			if (maf[i][pop_pos[j]] > maf_max)
 			{
 				high_MAF_num ++;
 				snp_pop[i] = false;
@@ -622,7 +701,7 @@ void allele_stat()
 			}
 		}
 		if (miss_frq_flag) miss_frq_num ++;
-		if(snp_pop[i])  remain_snp_num++;
+		if (snp_pop[i])  remain_snp_num++;
 	}
 	cout << "done." << endl;
 	logFile << "done." << endl;
@@ -645,7 +724,7 @@ void allele_stat()
 void pop_snp()
 {
 	pop_snp_num = 0;
-	for(int i = 0; i < snp_num; ++ i)
+	for (int i = 0; i < snp_num; ++ i)
 	{
 		if (snp_pop[i])
 		{
@@ -678,7 +757,7 @@ void allele_freq_output()
 	outfile.open((out_file + ".frq").c_str(), ios::out);
 	cout << "Saving allele frequencies to [" + out_file + ".frq]... " << flush;
 	logFile << "Saving allele frequencies to [" + out_file + ".frq]... ";
-	outfile << "chrom\t" << "pos\t" << "SNP\t" << "A1\t" << "A2\t" << "MA";
+	outfile << "chrom\t" << "pos\t" << "SNP\t" << "MinorAllele\t" << "MajorAllele";
 	for (int i = 0; i < ref_pop_num; i++) outfile << "\t" << ref_pop_name[i] << "_MAF\t"  << ref_pop_name[i] << "_miss_rate";
 	outfile << endl;
 	for(int i = 0; i<snp_num; ++ i)
@@ -687,8 +766,7 @@ void allele_freq_output()
 		outfile << position[i] << "\t";
 		outfile << snp[i] << "\t";
 		outfile << allele1[i] << "\t";
-		outfile << allele2[i] << "\t";
-		outfile << MA[i];
+		outfile << allele2[i];
 		for (int j = 0; j < ref_pop_num; j++) outfile << "\t" << maf[i][j] << "\t" << miss_frq[i][j];
 		outfile << endl;
 	}
@@ -706,6 +784,7 @@ void pop_snp_output()
 	snpfile.open(snp_file.c_str(), ios::out);
 	if (flag[9] == 1 && pop_snp_num > out_snp_num)
 	{
+		if (flag[13] ==1) srand(time(0));
 		random_shuffle(pop_snp_idx.begin(), pop_snp_idx.end());
 		cout << "Saving randomly selected " << out_snp_num << " population-specific SNPs to [" + snp_file + "]... " << flush;
 		logFile << "Saving randomly selected " << out_snp_num << " population-specific SNPs to [" + snp_file + "]... ";
@@ -721,7 +800,7 @@ void pop_snp_output()
 	{
 		snpfile << snp[pop_snp_idx[i]];
 		for (int j = 0; j < pop_num; j++) snpfile << "\t" << pop_name[j] << "\t" << maf[pop_snp_idx[i]][pop_pos[j]];
-		snpfile << endl;
+		snpfile  << "\t" << allele1[pop_snp_idx[i]]  << "\t" << allele2[pop_snp_idx[i]] << endl;
 	}
 	cout << "done." << endl;
 	logFile << "done." << endl;
