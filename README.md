@@ -16,35 +16,36 @@ The archive includes executable binary "asa" and "psnps" pre-compiled under Cent
 ## Usage
 Type "./asa --help" from the command line to display program options of ASA:
 
-    --bfile		Input genotype file in plink binary format.
-    --ifile		Input information file of a panel of population-specific SNPs. The file is expected to have three columns without headers: the first is SNP ID, the second is population that the SNP is specific to, and the third is MAF of the SNP in the population.
-    --out		Output file name (default: asa).
-    --aiv		Calculate and output ancestral information vectors by the method of moment estimate.
-    --mle		Calculate and output ancestral information vectors by the approximate maximum likelihood estimate.
-    --psv		Calculate and output principal score vectors.
-    --pca		Perform PCA and output top n eigenvectors, eigenvalues and PCs [default: n = 20].
-    --freq		Calculate and output allele frequencies.
-    --grm		Calculate and output genetic relationship matrix.
-    --maf-min	Exclude SNPs with MAFs smaller than the specified value [default: 0].
-    --maf-max	Exclude SNPs with MAFs larger than the specified value [default: 0.5].
-    --dist-min	Exclude SNPs with distances from previous ones less or equal to the specified value [default: 0].
-    --miss-max	Exclude SNPs with missing rates larger than the specified value [default: 1].
-    --batch-size	Number of SNPs to be processed in a batch [default: 10000].
-    --thread-num	Number of threads on which the program will be running [default: thread number in your machine - 1].
+--bfile		Input genotype file in plink binary format.
+--ifile		Input file that defines a panel of population-specific SNPs. The file is expected to have five columns without headers, which are SNP ID, population that the SNP is specific to, MAF in the population, minor and major alleles in reference populations.
+--out		Output file name [default: asa].
+--aiv		Calculate and output ancestral information vectors by the method of moment estimate.
+--mle		Calculate and output ancestral information vectors by the approximate maximum likelihood estimate.
+--psv		Calculate and output principal score vectors.
+--pca		Perform PCA and output top n eigenvectors, eigenvalues and PCs [default: n = 20].
+--grm		Calculate and output genetic relationship matrix.
+--batch-size	Number of SNPs to be processed in a batch [default: 10000].
+--thread-num	Number of threads on which the program will be running [default: thread number in your machine - 1].
+--match-alleles	Both minor and major alleles of the population-specific SNPs have to match the two alleles in the BIM file [default: as least one allele of the population-specific SNPs has to match one of the two alleles in the BIM file].
     
 Type "./psnps --help" from the command line to display program options of PSNPS:
 
-    --bfile		Input genotype file in plink binary format.
-    --ref-pop	Input file that describes reference populations. The file is expected to have two columns without headers: the first is individual ID and the second is the population that the individual belongs to.
-    --pop		Screen SNPs that are specific to the specified population. If multiple populations are specified, SNPs polymorphic in specified populations and monmophic in unspecified populations will be found.
-    --snp-num	Number of population-specific SNPs to be saved [default: all SNPs specific to the specified population(s)].
-    --freq		Calculate and output allele frequencies in the reference populations.
-    --out		Output file for saving population-specific SNPs or allele frequencies [default: psnps].
-    --maf-min	Exclude SNPs with MAFs smaller than the specified value in the population(s) specified by --pop [default: 0]. Minor alleles are determined by the total samples of the reference populations.
-    --maf-max	Exclude SNPs with MAFs larger than the specified value in the population(s) specified by --pop [default: 0.5].
-    --miss-max	Exclude SNPs with missing rates larger than the specified value in the reference populations [default: 0].
-    --batch-size	Number of SNPs to be processed in a batch [default: 10000].
-    --thread-num	Number of threads on which the program will be running [default: thread number in your machine - 1].
+--bfile		Input genotype file in plink binary format.
+--ref-pop	Input file that describes reference populations. The file is expected to have two columns without headers:
+		the first is individual ID and the second is the population that the individual belongs to.
+--pop		Screen SNPs that are specific to the specified population.
+		If multiple populations are specified, SNPs polymorphic in all specified populations and monmophic in unspecified populations will be found.
+--snp-num	Number of population-specific SNPs to be saved [default: all SNPs specific to the specified population(s)].
+--random-seed	Set a random seed for selecting the population-specific SNPs to be saved.
+--freq		Calculate and output allele frequencies in the reference populations.
+--out		Output file for saving population-specific SNPs or allele frequencies [default: psnps].
+--maf-min	Exclude SNPs with MAFs smaller than the specified value in the population(s) specified by --pop [default: 0].
+		Minor alleles are determined by the total samples of the reference populations.
+--maf-max	Exclude SNPs with MAFs larger than the specified value in the population(s) specified by --pop [default: 0.5].
+--miss-max	Exclude SNPs with missing rates larger than the specified value in the reference populations [default: 0].
+--dist-min	Exclude SNPs with distances from previous ones less than or equal to the specified value [default: 0].
+--batch-size	Number of SNPs to be processed in a batch [default: 10000].
+--thread-num	Number of threads on which the program will be running [default: thread number in your machine - 1].
     
 ## Citation
 Shi G, Kuang Q. Ancestral spectrum analysis with population-specific variants. Front Genet. 2021;12:724638.
