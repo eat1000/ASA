@@ -63,6 +63,7 @@ void help()
 	cout << "--maf-max\t" << "Exclude SNPs with MAFs larger than the specified value in the population(s) specified by --pop [default: 0.5]." << endl;
 	cout << "--miss-max\t" << "Exclude SNPs with missing rates larger than the specified value in the reference populations [default: 0]." << endl;
 	cout << "--dist-min\t" << "Exclude SNPs with distances from previous ones less than or equal to the specified value [default: 0]." << endl;
+	cout << "--tv-only\t" << "Keep SNPs that are transversions only." << endl;
 	cout << "--batch-size\t" << "Number of SNPs to be processed in a batch [default: 10000]." << endl;
 	cout << "--thread-num\t" << "Number of threads on which the program will be running [default: thread number in your machine - 1]." << endl;
 }
@@ -87,6 +88,7 @@ Dataset(int argc, char *argv[])
 		{ "help", no_argument, NULL, 11},
 		{ "dist-min", required_argument, NULL, 12},
 		{ "random-seed", no_argument, NULL, 13},
+		{ "tv-only", no_argument, NULL, 14},
 		{0, 0, 0, 0}
 	};
 
@@ -119,6 +121,7 @@ Dataset(int argc, char *argv[])
 		case 11:  help(); exit(0); break;
 		case 12: flag[12] = 1; arg[12] = optarg; break;
 		case 13: flag[13] = 1; break;
+		case 14: flag[14] = 1; break;
 		default: break;
 		}
 	}
@@ -176,6 +179,11 @@ Dataset(int argc, char *argv[])
 		}
 	}
 	else dist_min = 0;
+	if (flag[14] == 1) 
+	{
+		cout << "--" << long_options[14].name << endl;
+		logFile << "--" << long_options[14].name << endl;
+	}
 	if (flag[8] == 1) 
 	{
 		cout << "--" << long_options[8].name << endl;
@@ -389,7 +397,8 @@ void readFAM()
 void readBIM()
 {
 	int chrom_this, pos_this;
-	int i = 0, chrom_last = -1, pos_last = -1, sex_snp_num = 0, pos_del_num = 0, miss_allele_num = 0;
+	int i = 0, chrom_last = -1, pos_last = -1, sex_snp_num = 0, pos_del_num = 0, miss_allele_num = 0, ts_snp_num = 0;
+	bool tv;
 	string thisline;
 	vector<string> parsedline;
 	cout << "Loading BIM file [" + bim_file + "]... " << flush;
@@ -419,6 +428,23 @@ void readBIM()
 		{
 			snp_pop[i] = false;
 			miss_allele_num++;
+		}
+		if (flag[14] == 1)
+		{
+			tv = false;
+			if (allele1[i] == "A" || allele1[i] == "G")
+			{
+				if (allele2[i] == "C" || allele2[i] == "T") tv = true;
+			}
+			else if (allele1[i] == "C" || allele1[i] == "T")
+			{
+				if (allele2[i] == "A" || allele2[i] == "G") tv = true;
+			}
+			if (!tv)
+			{
+				snp_pop[i] = false;
+				ts_snp_num++;
+			}
 		}
 		if (chrom_this < 1 || chrom_this > 22)
 		{
@@ -468,6 +494,11 @@ void readBIM()
 	{
 		cout << miss_allele_num << " SNPs removed due to missing allele information." << endl;
 		logFile << miss_allele_num << " SNPs removed due to missing allele information." << endl;
+	}
+	if (flag[14] == 1 && ts_snp_num > 0) 
+	{
+		cout << ts_snp_num << " SNPs removed due to not being transversions." << endl;
+		logFile << ts_snp_num << " SNPs removed due to not being transversions." << endl;
 	}
 }
 
