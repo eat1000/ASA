@@ -3,6 +3,7 @@ Ancestral Spectrum Analyzer (ASA) is a program for ancestry inference as well as
 
 ## Credits
 Qingmin Kuang, Gang Shi (gshi@xidian.edu.cn) developed the original version (v1.0.0) of the software [1].
+
 Gang Shi (gshi@xidian.edu.cn) updated the software to v1.1.0 by rearranging options in ASA and PSNPS, adding allele columns in the file that defines the population-specific SNPs, and providing the panels of population-specific SNPs used in [2].
 
 ## Dependencies
