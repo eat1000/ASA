@@ -1,8 +1,9 @@
 # ASA
 Ancestral Spectrum Analyzer (ASA) is a program for ancestry inference as well as analysis of population structure with population-specific SNPs. It comes with a utility, Population-Specific SNP Screener (PSNPS), which can be used for identifying and selecting population-specific SNPs in reference populations.
 
-## Authors
-Qingmin Kuang, Gang Shi (gshi@xidian.edu.cn)
+## Credits
+Qingmin Kuang, Gang Shi (gshi@xidian.edu.cn) developed the original version (v1.0.0) of the software [1].
+Gang Shi (gshi@xidian.edu.cn) updated the software to v1.1.0 by rearranging options in ASA and PSNPS, adding allele columns in the file that defines the population-specific SNPs, and providing the panels of population-specific SNPs used in [2].
 
 ## Dependencies
 + [EIGEN] (https://eigen.tuxfamily.org)
@@ -45,4 +46,5 @@ Type "./psnps --help" from the command line to display program options of PSNPS:
 	--thread-num	Number of threads on which the program will be running [default: thread number in your machine - 1].
     
 ## Citation
-Shi G, Kuang Q. Ancestral spectrum analysis with population-specific variants. Front Genet. 2021;12:724638.
+[1] Shi G, Kuang Q. Ancestral spectrum analysis with population-specific variants. Front Genet. 2021;12:724638.
+[2] Shi G. Insights from analysis of ancient and modern DNAs with population-specific SNPs. In submission.
