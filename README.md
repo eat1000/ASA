@@ -45,7 +45,7 @@ Type "./psnps --help" from the command line to display program options of PSNPS:
 ## Credits
 Qingmin Kuang and Gang Shi developed the original version (v1.0.0) of the software [1].
 
-Gang Shi updated the software to v1.1.0 by upgrading options in ASA and PSNPS, adding allele columns in the file that defines population-specific SNPs, and enclosing the panels of population-specific SNPs used in [2].
+Gang Shi upgraded the software to v1.1.0 by updating options in ASA and PSNPS, adding allele columns in the file that defines population-specific SNPs, and enclosing the panels of population-specific SNPs used in [2].
 
 ## Citation
 [1] Shi G, Kuang Q. Ancestral spectrum analysis with population-specific variants. Front Genet. 2021;12:724638.
