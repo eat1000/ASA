@@ -47,7 +47,7 @@ Qingmin Kuang and Gang Shi developed the original version (v1.0.0) of the softwa
 
 Gang Shi upgraded the software to v1.1.0 by updating options in ASA and PSNPS, adding allele columns in the file that defines population-specific SNPs, and enclosing the panels of population-specific SNPs used in [2].
 
-## Citation
+## Citations
 [1] Shi G, Kuang Q. Ancestral spectrum analysis with population-specific variants. Front Genet. 2021;12:724638.
 
 [2] Shi G. Insights from the analysis of ancient and modern DNAs with population-specific SNPs. In submission.
