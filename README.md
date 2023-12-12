@@ -50,5 +50,5 @@ Gang Shi upgraded the software to v1.1.0 by updating options in ASA and PSNPS, a
 ## Citations
 [1] Shi G, Kuang Q. Ancestral spectrum analysis with population-specific variants. Front Genet. 2021;12:724638.
 
-[2] Shi G. Insights from the analysis of ancient and modern DNA with population-specific SNPs. https://www.researchsquare.com/article/rs-3447042/v1
+[2] Shi G. Insights from the analysis of ancient and modern DNA with population-specific SNPs. https://doi.org/10.21203/rs.3.rs-3447042/v1
 
