@@ -28,17 +28,17 @@ Type "./asa --help" from the command line to display program options of "asa":
 
 Type "./lai --help" from the command line to display program options of "lai":
 	--vfile		Prefix of haplotype file in bgzipped VCF format [.vcf.gz] with the associated index file in tbi or csi format [.vcf.gz.tbi] or [.vcf.gz.csi].
- 	--ifile		Input file that defines a panel of population-specific SNPs. The file is expected to have seven columns without headers, which are in the order of SNP ID, population that the SNP is specific to, MAF in the population, minor and major alleles in reference populations, chromsome and position.
-  	--out		Prefix of output file [default: lai].
-   	--chr		Specify the chromosome for the analysis [default: 1].
-    	--pop-allele-id	Output populaiton-specific alleles carried by the speficied individual.
-     	--lai		Calculate and output local ancestral inference.
-      	--laiv		Output local ancestral information vectors [default: no output].
-       	--laiv2lai	Read the specifed local ancestral infomation vector file and output the local ancestral inference.
+	--ifile		Input file that defines a panel of population-specific SNPs. The file is expected to have seven columns without headers, which are in the order of SNP ID, population that the SNP is specific to, MAF in the population, minor and major alleles in reference populations, chromsome and position.
+ 	--out		Prefix of output file [default: lai].
+  	--chr		Specify the chromosome for the analysis [default: 1].
+   	--pop-allele-id	Output populaiton-specific alleles carried by the speficied individual.
+    	--lai		Calculate and output local ancestral inference.
+     	--laiv		Output local ancestral information vectors [default: no output].
+      	--laiv2lai	Read the specifed local ancestral infomation vector file and output the local ancestral inference.
 	--match-alleles	Both minor and major alleles of the population-specific SNPs have to match the two alleles in the haplotype file [default: as least one allele of the population-specific SNPs has to match one of the two alleles in the haplotype file].
- 	--window-size	Window size in the local ancestral information calculation [default: 2000000] (bp).
+	--window-size	Window size in the local ancestral information calculation [default: 2000000] (bp).
 	--laiv-min	Minimum value of laiv for calling ancestries [default: 0.000001].
- 	--allele-min	Minimum number of alleles in the window for calling the ancestry [default: 2].
+	--allele-min	Minimum number of alleles in the window for calling the ancestry [default: 2].
   
 Type "./psnps --help" from the command line to display program options of "psnps":
 
@@ -65,7 +65,7 @@ Qingmin Kuang and Gang Shi developed the original version (v1.0.0) of the softwa
 
 Gang Shi upgraded the software to v1.1.0 by updating options in "asa" and "psnps", adding allele columns in the file that defines population-specific SNPs, and enclosing the panels of population-specific SNPs used in [2].
 
-Haoyue Fu and Gang Shi implemented the method for local ancetry inference in "lai" and updated "psnps" [3].
+Haoyue Fu and Gang Shi implemented the local ancetry inference method in ASA v1.2.0 as "lai" and updated "psnps" [3].
 
 ## Citations
 [1] Shi G, Kuang Q. Ancestral spectrum analysis with population-specific variants. Front Genet. 2021;12:724638.
