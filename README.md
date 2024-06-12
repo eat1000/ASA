@@ -15,7 +15,7 @@ The archive includes executable binary "asa", "lai", "psnps" and "kartag" pre-co
 Type "./asa --help" from the command line to display program options of "asa":
 
 	--bfile		Input genotype file in plink binary format.
-	--ifile		Input file that defines a panel of population-specific SNPs. The file is expected to have at least five columns without headers, which are SNP ID, population that the SNP is specific to, MAF in the population, minor and major alleles in reference populations.
+	--ifile		Input file that defines a panel of population-specific SNPs. The file is expected to have five columns without headers, which are SNP ID, population that the SNP is specific to, MAF in the population, minor and major alleles in reference populations.
 	--out		Output file name [default: asa].
 	--aiv		Calculate and output ancestral information vectors by the method of moment estimate.
 	--mle		Calculate and output ancestral information vectors by the approximate maximum likelihood estimate.
