@@ -230,7 +230,7 @@ void help()
 	cout << "--match-alleles\t" << "Both minor and major alleles of the population-specific SNPs have to match the two alleles in the haplotype file [default: as least one allele of the population-specific SNPs has to match one of the two alleles in the haplotype file]." << endl;
 	cout << "--window-size\t" << "Window size in the local ancestral information calculation [default: 2000000] (bp)." << endl;
 	cout << "--laiv-min\t" << "Minimum value of laiv for calling ancestries [default: 0.000001]." << endl;
-	cout << "--allele-min\t" << "Minimum number of alleles in the window for calling an ancestry [default: 2]." << endl;
+	cout << "--allele-min\t" << "Minimum number of alleles in the window for calling ancestries [default: 2]." << endl;
 //	cout << "--gap-max\t" << "Maximum gap between two population-specific SNPs that is allowed in a window [default: 1000000] (bp)." << endl;
 }
 
