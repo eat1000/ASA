@@ -1,5 +1,5 @@
 # ASA
-Ancestral Spectrum Analyzer (ASA) is a program for ancestry inference, co-ancestry analysis, or analysis of population structure with population-specific SNPs. It includes "asa" for global ancestral spectrum analysis, "lai" for local ancestry inference and "psnps" for screening population-specific SNPs in reference populations.
+Ancestral Spectrum Analyzer (ASA) is a package for ancestry inference, co-ancestry analysis, or analysis of population structure with population-specific SNPs. It includes "asa" for global ancestral spectrum analysis, "lai" for local ancestry inference and "psnps" for screening population-specific SNPs in reference populations.
 
 ## Dependencies
 + [EIGEN] (https://eigen.tuxfamily.org)
@@ -27,6 +27,7 @@ Type "./asa --help" from the command line to display program options of "asa":
 	--match-alleles	Both minor and major alleles of the population-specific SNPs have to match the two alleles in the BIM file [default: as least one allele of the population-specific SNPs has to match one of the two alleles in the BIM file].
 
 Type "./lai --help" from the command line to display program options of "lai":
+
 	--vfile		Prefix of haplotype file in bgzipped VCF format [.vcf.gz] with the associated index file in tbi or csi format [.vcf.gz.tbi] or [.vcf.gz.csi].
 	--ifile		Input file that defines a panel of population-specific SNPs. The file is expected to have seven columns without headers, which are in the order of SNP ID, population that the SNP is specific to, MAF in the population, minor and major alleles in reference populations, chromsome and position.
  	--out		Prefix of output file [default: lai].
