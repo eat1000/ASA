@@ -6,9 +6,10 @@ Ancestral Spectrum Analyzer (ASA) is a program for ancestry inference, co-ancest
 + [Intel MKL] (https://software.intel.com/)
 + [Boost] (https://www.boost.org/)
 + [zlib] (https://www.zlib.net/)
-
++ [htslib] (https://github.com/samtools/htslib)
+  
 ## Installation
-The archive includes executable binary "asa", "lai", kartag" and "psnps" pre-compiled under CentOS8.0 (x86-64). To compile from source code, edit Makefile to point EIGEN_PATH and MKL_PATH to your own locations of EIGEN3 and MKL, then type "make".
+The archive includes executable binary "asa", "lai", "psnps" and "kartag" pre-compiled under CentOS8.0 (x86-64). To compile from source code, edit Makefile to point library paths to your own locations, then type "make".
 
 ## Usage
 Type "./asa --help" from the command line to display program options of "asa":
@@ -64,7 +65,7 @@ Qingmin Kuang and Gang Shi developed the original version (v1.0.0) of the softwa
 
 Gang Shi upgraded the software to v1.1.0 by updating options in "asa" and "psnps", adding allele columns in the file that defines population-specific SNPs, and enclosing the panels of population-specific SNPs used in [2].
 
-Haoyue Fu and Gang Shi implemented the method for local ancetry inference [3] in "lai" and updated "psnps".
+Haoyue Fu and Gang Shi implemented the method for local ancetry inference in "lai" and updated "psnps" [3].
 
 ## Citations
 [1] Shi G, Kuang Q. Ancestral spectrum analysis with population-specific variants. Front Genet. 2021;12:724638.
