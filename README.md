@@ -39,7 +39,7 @@ Type "./lai --help" from the command line to display program options of "lai":
 	--match-alleles	Both minor and major alleles of the population-specific SNPs have to match the two alleles in the haplotype file [default: as least one allele of the population-specific SNPs has to match one of the two alleles in the haplotype file].
 	--window-size	Window size in the local ancestral information calculation [default: 2000000] (bp).
 	--laiv-min	Minimum value of laiv for calling ancestries [default: 0.000001].
-	--allele-min	Minimum number of alleles in the window for calling the ancestry [default: 2].
+	--allele-min	Minimum number of alleles in the window for calling an ancestry [default: 2].
   
 Type "./psnps --help" from the command line to display program options of "psnps":
 
