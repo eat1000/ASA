@@ -33,9 +33,9 @@ Type "./lai --help" from the command line to display program options of "lai":
  	--out		Prefix of output file [default: lai].
   	--chr		Specify the chromosome for the analysis [default: 1].
    	--pop-allele-id	Output populaiton-specific alleles carried by the speficied individual.
-    	--lai		Calculate and output local ancestral inference.
-     	--laiv		Output local ancestral information vectors [default: no output].
-      	--laiv2lai	Read the specifed local ancestral infomation vector file and output the local ancestral inference.
+   	--lai		Calculate and output local ancestral inference.
+    	--laiv		Output local ancestral information vectors [default: no output].
+     	--laiv2lai	Read the specifed local ancestral infomation vector file and output the local ancestral inference.
 	--match-alleles	Both minor and major alleles of the population-specific SNPs have to match the two alleles in the haplotype file [default: as least one allele of the population-specific SNPs has to match one of the two alleles in the haplotype file].
 	--window-size	Window size in the local ancestral information calculation [default: 2000000] (bp).
 	--laiv-min	Minimum value of laiv for calling ancestries [default: 0.000001].
