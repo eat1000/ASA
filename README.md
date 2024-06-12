@@ -65,7 +65,7 @@ Qingmin Kuang and Gang Shi developed the original version (v1.0.0) of the softwa
 
 Gang Shi upgraded the software to v1.1.0 by updating options in "asa" and "psnps", adding allele columns in the file that defines population-specific SNPs, and enclosing the panels of population-specific SNPs used in [2].
 
-Haoyue Fu and Gang Shi implemented the local ancetry inference method in ASA v1.2.0 as "lai" and updated "psnps" [3].
+Haoyue Fu and Gang Shi implemented the local ancetry inference method in v1.2.0 as "lai" and updated "psnps" [3].
 
 ## Citations
 [1] Shi G, Kuang Q. Ancestral spectrum analysis with population-specific variants. Front Genet. 2021;12:724638.
