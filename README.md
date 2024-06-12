@@ -48,7 +48,7 @@ Type "./psnps --help" from the command line to display program options of "psnps
  	--out		Output file for saving population-specific SNPs or allele frequencies [default: psnps].
 	--snp-panel	Screen SNPs that are specific to one reference population at a time and compose a SNP panel.
 	--pop		Screen SNPs that are specific to the specified population. If multiple populations are specified, SNPs polymorphic in all specified populations and monmophic in unspecified populations will be found.
-	--snp-num	Number of population-specific SNPs to be saved [default: all SNPs specific to the specified population(s)].
+	--snp-num	Number of population-specific SNPs to be saved in each screening [default: all SNPs specific to the specified population(s)].
 	--random-seed	Set a random seed for selecting the population-specific SNPs to be saved.
 	--freq		Calculate and output allele frequencies in the reference populations.
 	--maf-min	Exclude SNPs with MAFs smaller than the specified value in the population(s) specified by --pop [default: 0]. Minor alleles are determined by the total samples of the reference populations.
@@ -65,7 +65,7 @@ Qingmin Kuang and Gang Shi developed the original version (v1.0.0) of the softwa
 
 Gang Shi upgraded the software to v1.1.0 by updating options in "asa" and "psnps", adding allele columns in the file that defines population-specific SNPs, and enclosing the panels of population-specific SNPs used in [2].
 
-Haoyue Fu and Gang Shi implemented the local ancetry inference method in v1.2.0 as "lai" and updated "psnps" [3].
+Haoyue Fu and Gang Shi implemented the local ancestry inference method in v1.2.0 as "lai" and updated "psnps" [3].
 
 ## Citations
 [1] Shi G, Kuang Q. Ancestral spectrum analysis with population-specific variants. Front Genet. 2021;12:724638.
