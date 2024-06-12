@@ -59,14 +59,14 @@ void cover()
 void help()
 {
 	cover();
-	cout << "--lai-files\t\t" << "Prefix of the LAI files." << endl;
-	cout << "--from-chr\t\t" << "Starting chromosome of the LAI files [default: 1]." << endl;
-	cout << "--to-chr\t\t" << "Ending chromosome of the LAI files [default: 22]." << endl;
+	cout << "--lai-files\t" << "Prefix of the LAI files." << endl;
+	cout << "--from-chr\t" << "Starting chromosome of the LAI files [default: 1]." << endl;
+	cout << "--to-chr\t" << "Ending chromosome of the LAI files [default: 22]." << endl;
 	cout << "--out\t\t" << "Prefix of the output files for plotting with karyoploteR and Tagore [default: lai]." << endl;
 //	cout << "--fill-gaps\t\t" << "Fill the uncalled gaps in the output files [default: false]." << endl;
-	cout << "--palette\t\t" << "Palette for plotting with Tagore." << endl;
-	cout << "--suffix\t\t" << "Suffix of the LAI files [default: .lai]." << endl;
-	cout << "--rfmix\t\t" << "RFMIX2 msp file format." << endl;
+	cout << "--palette\t" << "Palette for plotting with Tagore." << endl;
+	cout << "--suffix\t" << "Suffix of the LAI files [default: .lai]." << endl;
+	cout << "--rfmix\t\t" << "RFMix msp file format that uses 0 for population coding." << endl;
 }
 
 LAI(int argc, char *argv[]) 
