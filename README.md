@@ -35,7 +35,7 @@ Type "./lai --help" from the command line to display program options of "lai":
    	--pop-allele-id	Output populaiton-specific alleles carried by the speficied individual.
    	--lai		Calculate and output local ancestral inference.
   	--laiv		Output local ancestral information vectors [default: no output].
-    	--laiv2lai	Read the specifed local ancestral infomation vector file and output the local ancestral inference.
+	--laiv2lai	Read the specifed local ancestral infomation vector file and output the local ancestral inference.
 	--match-alleles	Both minor and major alleles of the population-specific SNPs have to match the two alleles in the haplotype file [default: as least one allele of the population-specific SNPs has to match one of the two alleles in the haplotype file].
 	--window-size	Window size in the local ancestral information calculation [default: 2000000] (bp).
 	--laiv-min	Minimum value of laiv for calling ancestries [default: 0.000001].
@@ -51,7 +51,6 @@ Type "./psnps --help" from the command line to display program options of "psnps
 	--snp-num	Number of population-specific SNPs to be saved [default: all SNPs specific to the specified population(s)].
 	--random-seed	Set a random seed for selecting the population-specific SNPs to be saved.
 	--freq		Calculate and output allele frequencies in the reference populations.
-
 	--maf-min	Exclude SNPs with MAFs smaller than the specified value in the population(s) specified by --pop [default: 0]. Minor alleles are determined by the total samples of the reference populations.
 	--maf-max	Exclude SNPs with MAFs larger than the specified value in the population(s) specified by --pop [default: 0.5].
 	--miss-max	Exclude SNPs with missing rates larger than the specified value in the reference populations [default: 0].
