@@ -5,7 +5,7 @@ void cover()
 	cout << "+======================================+" << endl;
 	cout << "|                                      |" << endl;
 	cout << "|   Ancestral Spectrum Analyzer (ASA)  |" << endl;
-	cout << "|   version 1.1.0                      |" << endl;
+	cout << "|   version 1.2.0                      |" << endl;
 	cout << "|                                      |" << endl;
 	cout << "+======================================+" << endl;
 }

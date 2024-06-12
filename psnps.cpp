@@ -18,7 +18,6 @@
 #include <omp.h>
 #include <thread>
 
-
 using namespace std;
 using namespace boost;
 
@@ -28,12 +27,12 @@ const char* delimiter = " \t";
 vector<string> pop_name, nonpop_name, famid, subid, chrom, snp, allele1, allele2, ref_id, ref_pop, ref_pop_name;
 vector<int> position, ref_pop_cnt, id_pop, pop_pos, nonpop_pos, pop_snp_idx;
 vector<bool> snp_pop;
-vector<vector<int>> allele1_cnt, miss_cnt;
+vector<vector<int>> allele1_cnt, miss_cnt, pop_snp_selected;
 vector<vector<double>> miss_frq, maf;
 int pop_num, nonpop_num, batch_size, indi_num, snp_num, remain_snp_num, ref_indi_num, ref_pop_num, pop_snp_num, out_snp_num, max_thread_num, dist_min;
 double maf_min, maf_max, miss_max;
 bool error_flag = false;	
-string bed_file, fam_file, bim_file, ref_file, out_file;	
+string bed_file, fam_file, bim_file, ref_file, out_file, panel_file;	
 ifstream bedfile, famfile, bimfile, reffile, outfile;
 set<string> subid_set, ref_pop_set, ref_id_set;
 unordered_multiset<string> ref_pop_multiset;
@@ -45,19 +44,30 @@ string arg[25];
 ofstream logFile;
 int thread_num;
 
+void cover()
+{
+	cout << "+================================================+" << endl;
+	cout << "|                                                |" << endl;
+	cout << "|    Population-Specific SNP Screener (PSNPS)    |" << endl;
+	cout << "|    ASA version 1.2.0                           |" << endl;
+	cout << "|                                                |" << endl;
+	cout << "+================================================+" << endl;
+}
+
 void help()
 {
-	cout << "Population-Specific SNP Screener (PSNPS)" << endl;
+	cover();
 	cout << "Options:" << endl;
 	cout << "--bfile\t\t" << "Input genotype file in plink binary format." << endl;
 	cout << "--ref-pop\t" << "Input file that describes reference populations. The file is expected to have two columns without headers:" << endl;
 	cout << "\t\t" << "the first is individual ID and the second is the population that the individual belongs to." << endl;
-	cout << "--pop\t\t" << "Screen SNPs that are specific to the specified population." << endl;
+	cout << "--out\t\t" << "Output file for saving population-specific SNPs or allele frequencies [default: psnps]." << endl;
+	cout << "--snp-panel\t" << "Screen SNPs that are specific to one reference population at a time and compose a SNP panel." << endl;
+	cout << "--pop\t\t" << "Screen SNPs that are specific to the specified population(s)." << endl;
 	cout << "\t\t" << "If multiple populations are specified, SNPs polymorphic in all specified populations and monmophic in unspecified populations will be found." << endl;
-	cout << "--snp-num\t" << "Number of population-specific SNPs to be saved [default: all SNPs specific to the specified population(s)]." << endl;
+	cout << "--snp-num\t" << "Number of population-specific SNPs to be saved in each screening [default: all SNPs specific to the population(s)]." << endl;
 	cout << "--random-seed\t" << "Set a random seed for selecting the population-specific SNPs to be saved." << endl;
 	cout << "--freq\t\t" << "Calculate and output allele frequencies in the reference populations." << endl;
-	cout << "--out\t\t" << "Output file for saving population-specific SNPs or allele frequencies [default: psnps]." << endl;
 	cout << "--maf-min\t" << "Exclude SNPs with MAFs smaller than the specified value in the population(s) specified by --pop [default: 0]." << endl;
 	cout << "\t\t" << "Minor alleles are determined by the total samples of the reference populations." << endl;
 	cout << "--maf-max\t" << "Exclude SNPs with MAFs larger than the specified value in the population(s) specified by --pop [default: 0.5]." << endl;
@@ -66,6 +76,7 @@ void help()
 	cout << "--tv-only\t" << "Keep SNPs that are transversions only." << endl;
 	cout << "--batch-size\t" << "Number of SNPs to be processed in a batch [default: 10000]." << endl;
 	cout << "--thread-num\t" << "Number of threads on which the program will be running [default: thread number in your machine - 1]." << endl;
+	cout << "--sort\t\t" << "Sort the specified SNP panel file by chromosome and position." << endl;
 }
 
 Dataset(int argc, char *argv[]) 
@@ -89,6 +100,8 @@ Dataset(int argc, char *argv[])
 		{ "dist-min", required_argument, NULL, 12},
 		{ "random-seed", no_argument, NULL, 13},
 		{ "tv-only", no_argument, NULL, 14},
+		{ "snp-panel", no_argument, NULL, 15},
+		{ "sort", required_argument, NULL, 16},
 		{0, 0, 0, 0}
 	};
 
@@ -122,16 +135,17 @@ Dataset(int argc, char *argv[])
 		case 12: flag[12] = 1; arg[12] = optarg; break;
 		case 13: flag[13] = 1; break;
 		case 14: flag[14] = 1; break;
+		case 15: flag[15] = 1; break;
+		case 16: flag[16] = 1; arg[16] = optarg; panel_file = optarg; break;
 		default: break;
 		}
 	}
 
+	cover();
 	if (flag[2] == 1) out_file = arg[2];
 	else out_file = "psnps";
 	logFile.open(out_file + ".log", ios::out);
-	cout << "Population-Specific SNP Screener (PSNPS)" << endl;
 	cout << "Options specified:" << endl;
-	logFile << "Population-Specific SNP Screener (PSNPS)" << endl;
 	logFile << "Options specified:" << endl;
 	for (int i = 0; i < 3; i++) 
 	{
@@ -140,6 +154,11 @@ Dataset(int argc, char *argv[])
 			cout << "--" << long_options[i].name << " " << arg[i] << endl;
 			logFile << "--" << long_options[i].name << " " << arg[i] << endl;
 		}
+	}
+	if (flag[15] == 1) 
+	{
+		cout << "--" << long_options[15].name << " " << endl;
+		logFile << "--" << long_options[15].name << " " << endl;
 	}
 	if (flag[3] == 1) 
 	{
@@ -152,6 +171,11 @@ Dataset(int argc, char *argv[])
 		}
 		cout << endl;
 		logFile << endl;
+	}
+	if (flag[16] == 1) 
+	{
+		cout << "--" << long_options[16].name << " " << arg[16] << endl;
+		logFile << "--" << long_options[16].name << " " << arg[16] << endl;
 	}
 	for (int i = 4; i < 7; i++)
 	{
@@ -238,7 +262,7 @@ Dataset(int argc, char *argv[])
 		}
 		else bimfile.close();
 	}
-	else
+	else if (flag[16] == 0)
 	{
 		cout << "ERROR: " << "use --bfile to specify genotype data." << endl;
 		logFile << "ERROR: " << "use --bfile to specify genotype data." << endl;
@@ -256,7 +280,7 @@ Dataset(int argc, char *argv[])
 		}
 		else reffile.close();
 	}
-	else
+	else if (flag[16] == 0)
 	{
 		cout << "ERROR: " << "use --ref-pop to specify the file that describes reference populations." << endl;
 		logFile << "ERROR: " << "use --ref-pop to specify the file that describes reference populations." << endl;
@@ -350,10 +374,16 @@ Dataset(int argc, char *argv[])
 	}
 	else if (max_thread_num > 1) thread_num = max_thread_num - 1;
 	else thread_num = 1;
-	if (flag[3] == 0 && flag[8] == 0)
+	if (flag[3] == 0 && flag[8] == 0 && flag[15] == 0 && flag[16] == 0)
 	{
-		cout << "ERROR: use --pop to screen population-specific SNPs or --freq to calculate allele frequencies in the reference populations." << endl;
-		logFile << "ERROR: use --pop to screen population-specific SNPs or --freq to calculate allele frequencies in the reference populations." << endl;
+		cout << "ERROR: use --pop to screen population-specific SNPs, --snp-panel to  screen population-specific SNPs and compose a SNP panel, or --freq to calculate allele frequencies in the reference populations." << endl;
+		logFile << "ERROR: use --pop to screen population-specific SNPs, --snp-panel to  screen population-specific SNPs and compose a SNP panel, or --freq to calculate allele frequencies in the reference populations." << endl;
+		error_flag = true;
+	}
+	if (flag[3] == 1 && flag[15] == 1)
+	{
+		cout << "ERROR: use --pop to screen population-specific SNPs or --snp-panel to  screen population-specific SNPs and compose a SNP panel." << endl;
+		logFile << "ERROR: use --pop to screen population-specific SNPs or --snp-panel to  screen population-specific SNPs and compose a SNP panel." << endl;
 		error_flag = true;
 	}
 
@@ -567,34 +597,7 @@ void readREF()
 		it =  id_pop_map.find(subid[i]);
 		if (it != id_pop_map.end()) id_pop[i] = it->second;
 	}
-	pop_pos.resize(pop_num);
-	for (int i = 0; i < ref_pop_num; i++) 
-	{
-		bool pop_found = false;
-		for (int j = 0; j < pop_num; j++)
-		{
-			if (pop_name[j] == ref_pop_name[i]) 
-			{
-				pop_found = true;
-				pop_pos[j] = i;
-			}
-		}
-		if (!pop_found)
-		{
-			nonpop_name.push_back(ref_pop_name[i]);
-			nonpop_pos.push_back(i);
-		}
-	}
-	nonpop_num = nonpop_name.size();
-	for (int i = 0; i < pop_num; i++)
-	{
-		if (pop_pos[i] == -1)
-		{
-			cout << "ERROR: population " << pop_name[i] << " specified by --pop was not found in the [" << ref_file << "]." << endl;
-			logFile << "ERROR: population " << pop_name[i] << " specified by --pop was not found in the [" << ref_file << "]." << endl;
-			exit(0);
-		}
-	}
+
 	subid_set.clear();
 	ref_id_set.clear();
 	ref_pop_set.clear();
@@ -704,6 +707,65 @@ void allele_stat()
 	}
 	delete [] batch_char;
 	bedfile.close();
+	cout << "done." << endl;
+	logFile << "done." << endl;
+}
+
+
+void allele_freq_output()
+{
+	ofstream outfile;
+	outfile.open((out_file + ".frq").c_str(), ios::out);
+	cout << "Saving allele frequencies to [" + out_file + ".frq]... " << flush;
+	logFile << "Saving allele frequencies to [" + out_file + ".frq]... ";
+	outfile << "chrom\t" << "pos\t" << "SNP\t" << "MinorAllele\t" << "MajorAllele";
+	for (int i = 0; i < ref_pop_num; i++) outfile << "\t" << ref_pop_name[i] << "_MAF\t"  << ref_pop_name[i] << "_miss_rate";
+	outfile << endl;
+	for(int i = 0; i<snp_num; ++ i)
+	{
+		outfile << chrom[i] << "\t";
+		outfile << position[i] << "\t";
+		outfile << snp[i] << "\t";
+		outfile << allele1[i] << "\t";
+		outfile << allele2[i];
+		for (int j = 0; j < ref_pop_num; j++) outfile << "\t" << maf[i][j] << "\t" << miss_frq[i][j];
+		outfile << endl;
+	}
+	cout << "done." << endl;
+	logFile << "done." << endl;
+	outfile.close();
+}
+
+void pop_snp()
+{
+	pop_pos.resize(pop_num);
+	for (int i = 0; i < ref_pop_num; i++) 
+	{
+		bool pop_found = false;
+		for (int j = 0; j < pop_num; j++)
+		{
+			if (pop_name[j] == ref_pop_name[i]) 
+			{
+				pop_found = true;
+				pop_pos[j] = i;
+			}
+		}
+		if (!pop_found)
+		{
+			nonpop_name.push_back(ref_pop_name[i]);
+			nonpop_pos.push_back(i);
+		}
+	}
+	nonpop_num = nonpop_name.size();
+	for (int i = 0; i < pop_num; i++)
+	{
+		if (pop_pos[i] == -1)
+		{
+			cout << "ERROR: population " << pop_name[i] << " specified by --pop was not found in the [" << ref_file << "]." << endl;
+			logFile << "ERROR: population " << pop_name[i] << " specified by --pop was not found in the [" << ref_file << "]." << endl;
+			exit(0);
+		}
+	}
 
 	int low_MAF_num = 0, high_MAF_num = 0, miss_frq_num = 0;
 	remain_snp_num = 0;
@@ -734,8 +796,6 @@ void allele_stat()
 		if (miss_frq_flag) miss_frq_num ++;
 		if (snp_pop[i])  remain_snp_num++;
 	}
-	cout << "done." << endl;
-	logFile << "done." << endl;
 	cout << low_MAF_num << " SNPs removed due to MAFs < " << maf_min << ".\n";
 	logFile << low_MAF_num << " SNPs removed due to MAFs < " << maf_min << ".\n";
 	cout << high_MAF_num << " SNPs removed due to MAFs > " << maf_max << ".\n";
@@ -750,10 +810,7 @@ void allele_stat()
 	}
 	cout << remain_snp_num << " SNPs passed filters." << endl;
 	logFile << remain_snp_num << " SNPs passed filters." << endl;
-}
 
-void pop_snp()
-{
 	pop_snp_num = 0;
 	for (int i = 0; i < snp_num; ++ i)
 	{
@@ -765,7 +822,7 @@ void pop_snp()
 			}
 			for (int j = 0; j < nonpop_num; j++)
 			{
-				if (maf[i][nonpop_pos[j]] > 0) snp_pop[i] = false;
+				if (maf[i][nonpop_pos[j]] > 0) snp_pop[i] = false; //==0
 			}
 			if (snp_pop[i])
 			{
@@ -780,30 +837,6 @@ void pop_snp()
 	logFile << pop_snp_num << " SNPs are specific to " << pop_name[0];
 	for (int i = 1; i < pop_num; i++) logFile << ", " << pop_name[i];
 	logFile << "." << endl;
-}
-
-void allele_freq_output()
-{
-	ofstream outfile;
-	outfile.open((out_file + ".frq").c_str(), ios::out);
-	cout << "Saving allele frequencies to [" + out_file + ".frq]... " << flush;
-	logFile << "Saving allele frequencies to [" + out_file + ".frq]... ";
-	outfile << "chrom\t" << "pos\t" << "SNP\t" << "MinorAllele\t" << "MajorAllele";
-	for (int i = 0; i < ref_pop_num; i++) outfile << "\t" << ref_pop_name[i] << "_MAF\t"  << ref_pop_name[i] << "_miss_rate";
-	outfile << endl;
-	for(int i = 0; i<snp_num; ++ i)
-	{
-		outfile << chrom[i] << "\t";
-		outfile << position[i] << "\t";
-		outfile << snp[i] << "\t";
-		outfile << allele1[i] << "\t";
-		outfile << allele2[i];
-		for (int j = 0; j < ref_pop_num; j++) outfile << "\t" << maf[i][j] << "\t" << miss_frq[i][j];
-		outfile << endl;
-	}
-	cout << "done." << endl;
-	logFile << "done." << endl;
-	outfile.close();
 }
 
 void pop_snp_output()
@@ -827,16 +860,256 @@ void pop_snp_output()
 		logFile << "Saving the " << out_snp_num << " population-specific SNPs to [" + snp_file + "]... ";
 	}
 
-	for(int i = 0; i < out_snp_num; i++)
+	// for(int i = 0; i < out_snp_num; i++)
+	// {
+	// 	snpfile << snp[pop_snp_idx[i]];
+	// 	for (int j = 0; j < pop_num; j++) snpfile << "\t" << pop_name[j] << "\t" << maf[pop_snp_idx[i]][pop_pos[j]];
+	// 	snpfile  << "\t" << allele1[pop_snp_idx[i]]  << "\t" << allele2[pop_snp_idx[i]] << endl;
+	// }
+
+		for(int i = 0; i < out_snp_num; i++)
 	{
 		snpfile << snp[pop_snp_idx[i]];
 		for (int j = 0; j < pop_num; j++) snpfile << "\t" << pop_name[j] << "\t" << maf[pop_snp_idx[i]][pop_pos[j]];
-		snpfile  << "\t" << allele1[pop_snp_idx[i]]  << "\t" << allele2[pop_snp_idx[i]] << endl;
+		snpfile  << "\t" << allele1[pop_snp_idx[i]]  << "\t" << allele2[pop_snp_idx[i]];
+		snpfile  << "\t" << chrom[pop_snp_idx[i]]  << "\t" << position[pop_snp_idx[i]] << endl;
 	}
+
 	cout << "done." << endl;
 	logFile << "done." << endl;
 	snpfile.close();
 }
+
+void  snp_panel()
+{
+	pop_snp_selected.resize(ref_pop_num);
+	int miss_frq_num = 0;
+	for(int i = 0; i < snp_num; ++ i)
+	{
+		bool miss_frq_flag = false;
+		for (int j = 0; j < ref_pop_num; j++)
+		{
+			if (miss_frq[i][j] > miss_max) 
+			{
+				miss_frq_flag = true;
+				snp_pop[i] = false;
+			}
+		}
+	if (miss_frq_flag) miss_frq_num ++;
+	}
+
+	vector<bool> this_snp_pop;
+	for (int pop_idx = 0; pop_idx < ref_pop_num; pop_idx++)
+	{
+	this_snp_pop = snp_pop;
+	cout << "Screening SNPs specific to " << ref_pop_name[pop_idx] << "..." << flush;
+	logFile << "Screening SNPs specific to " << ref_pop_name[pop_idx] << "..." << flush;
+	int low_MAF_num = 0, high_MAF_num = 0;
+	remain_snp_num = 0;
+	for(int i = 0; i < snp_num; ++ i)
+	{
+		if (maf[i][pop_idx] < maf_min)
+		{
+			low_MAF_num ++;
+			this_snp_pop[i] = false;
+		}
+		if (maf[i][pop_idx] > maf_max)
+		{
+			high_MAF_num ++;
+			this_snp_pop[i] = false;
+		}
+		if (this_snp_pop[i])  remain_snp_num++;
+	}
+	cout << "done." << endl;
+	logFile << "done." << endl;
+	cout << low_MAF_num << " SNPs removed due to MAFs < " << maf_min << ".\n";
+	logFile << low_MAF_num << " SNPs removed due to MAFs < " << maf_min << ".\n";
+	cout << high_MAF_num << " SNPs removed due to MAFs > " << maf_max << ".\n";
+	logFile << high_MAF_num << " SNPs removed due to MAFs > " << maf_max << ".\n";	
+	cout << miss_frq_num << " SNPs removed due to missing rate > " << miss_max << ".\n";
+	logFile << miss_frq_num << " SNPs removed due to missing rate > " << miss_max << ".\n";
+	if(remain_snp_num == 0)
+	{
+		cout << "ERROR: 0 SNPs pass filters." << endl;
+		logFile << "ERROR: 0 SNPs pass filters." << endl;
+		exit(0);
+	}
+	cout << remain_snp_num << " SNPs passed filters." << endl;
+	logFile << remain_snp_num << " SNPs passed filters." << endl;
+
+	pop_snp_num = 0;
+	pop_snp_idx.clear();
+	for (int i = 0; i < snp_num; ++ i)
+	{
+		if (snp_pop[i])
+		{
+			if (maf[i][pop_idx] == 0) this_snp_pop[i] =false;
+			for (int j = 0; j < ref_pop_num; j++)
+			{
+				if (j == pop_idx) continue;
+				if (maf[i][j] > 0) this_snp_pop[i] = false; //==0
+			}
+			if (this_snp_pop[i])
+			{
+				pop_snp_idx.push_back(i);
+				pop_snp_num++;
+			}
+		}
+	}
+	cout << pop_snp_num << " SNPs are specific to " << ref_pop_name[pop_idx] << "." << endl;
+	logFile << pop_snp_num << " SNPs are specific to " << ref_pop_name[pop_idx] << "." << endl;
+	if (flag[9] == 1 && pop_snp_num > out_snp_num)
+	{
+		if (flag[13] ==1) srand(time(0));
+		random_shuffle(pop_snp_idx.begin(), pop_snp_idx.end());
+		for (int i = 0; i < out_snp_num; ++ i) pop_snp_selected[pop_idx].push_back(pop_snp_idx[i]);
+		cout << out_snp_num << " SNPs specific to " << ref_pop_name[pop_idx] << " were randomly selected." << endl;
+		logFile << out_snp_num << " SNPs specific to " << ref_pop_name[pop_idx] << " were randomly selected." << endl;
+	}
+	else
+	{
+		for (int i = 0; i < pop_snp_num; ++ i) pop_snp_selected[pop_idx].push_back(pop_snp_idx[i]);
+		cout << pop_snp_num << " SNPs specific to " << ref_pop_name[pop_idx] << " were selected." << endl;
+		logFile << pop_snp_num << " SNPs specific to " << ref_pop_name[pop_idx] << " were selected." << endl;
+	}
+	}
+}
+
+void snp_panel_output()
+{
+	ofstream snpfile;
+	string snp_file;
+	int panel_snp_num = 0;
+	snp_file = out_file + ".panel";
+	snpfile.open(snp_file.c_str(), ios::out);
+	cout << "Saving the SNP panel to [" + snp_file + "]... " << flush;
+	logFile << "Saving the SNP panel to [" + snp_file + "]... " << flush;
+	for (int pop_idx = 0; pop_idx < ref_pop_num; pop_idx++)
+	{
+		for (int i = 0; i < pop_snp_selected[pop_idx].size(); i++)
+		{
+			snpfile << snp[pop_snp_selected[pop_idx][i]];
+			snpfile << "\t" << ref_pop_name[pop_idx] << "\t" << maf[pop_snp_selected[pop_idx][i]][pop_idx];
+			snpfile  << "\t" << allele1[pop_snp_selected[pop_idx][i]]  << "\t" << allele2[pop_snp_selected[pop_idx][i]];
+			snpfile  << "\t" << chrom[pop_snp_selected[pop_idx][i]] << "\t" << position[pop_snp_selected[pop_idx][i]] << endl;
+			panel_snp_num++;
+		}
+	}
+	cout << "done." << endl << panel_snp_num << " SNPs were saved." << endl;
+	logFile << "done." << endl << panel_snp_num << " SNPs were saved." << endl;
+	snpfile.close();
+}
+
+struct SNPinfo
+{
+ 	string info_snp, info_pop, info_pop_MiA, info_pop_MaA;
+	double info_pop_maf;
+	int chrom, position;
+};
+struct cmp 
+{
+	bool operator() (const pair<int, int>& lhs, const pair<int, int>& rhs) const 
+	{
+		if (lhs.first == rhs.first) 
+		{
+			return lhs.second < rhs.second;
+		} 
+		else 
+		{	return lhs.first < rhs.first;
+		}
+	}
+};
+
+void panel_sort()
+{
+	multimap<pair<int,int>,SNPinfo,cmp> snp_map;
+	set<string> info_pop_set;
+	unordered_multiset<string> info_pop_multiset;
+	vector <string>  parsedline, info_diff_pop;
+	vector <int> info_pop_snp_num;
+	string thisline;
+	ifstream infofile;
+	infofile.open(panel_file.c_str(),ios::in);
+	if(!infofile)
+	{
+		cout << "ERROR: " << panel_file << " was not found!" << endl;
+		logFile << "ERROR: " << panel_file << " was not found!" << endl;
+		exit (0);
+	}
+	int info_col_num = 0;
+	getline(infofile, thisline, '\n');
+	split(parsedline, thisline, is_any_of(delimiter));
+	info_col_num = parsedline.size();
+	infofile.close(); 
+	if (info_col_num < 7)
+	{
+		cout << "ERROR: " << panel_file << " has " << info_col_num << " columns, 7 columns are expeted." << endl;
+		logFile << "ERROR: " << panel_file << " has " << info_col_num << " columns, 7 columns are expeted." << endl;
+		exit(0);
+	}
+
+	int info_snp_num = 0;
+	infofile.open(panel_file.c_str(),ios::in);
+	while (getline(infofile,thisline,'\n'))
+	{
+		split(parsedline, thisline, is_any_of(delimiter));
+		SNPinfo snp_info;
+		snp_info.info_snp = parsedline[0];
+		snp_info.info_pop = parsedline[1];
+		snp_info.info_pop_maf = atof(parsedline[2].c_str());
+		snp_info.info_pop_MiA = parsedline[3];
+		snp_info.info_pop_MaA = parsedline[4];
+		snp_info.chrom = atoi(parsedline[5].c_str());
+		snp_info.position = atoi(parsedline[6].c_str());
+		snp_map.insert(make_pair(make_pair(snp_info.chrom, snp_info.position), snp_info));
+		info_pop_set.insert(parsedline[1]);
+		info_pop_multiset.insert(parsedline[1]);
+		info_snp_num++;
+	}
+
+	infofile.close();
+
+	cout << info_snp_num << " SNPs loaded from the panel file [" << panel_file << "]." << endl;
+	logFile << info_snp_num << " SNPs loaded from the panel file [" << panel_file << "]." << endl;
+	int info_pop_num = info_pop_set.size();
+	cout << info_pop_num << " populations found, population ID and number of the population-specific SNPs are " << endl;
+ 	logFile << info_pop_num << " populations found, population ID and number of the population-specific SNPs are " << endl;
+	set<string>::iterator it;
+	for (it = info_pop_set.begin(); it != info_pop_set.end(); ++ it)
+	{
+		info_diff_pop.push_back(*it);
+		info_pop_snp_num.push_back(info_pop_multiset.count(*it)); 
+	}
+	for(int i = 0; i < info_pop_num; ++ i)
+	{
+		cout << info_diff_pop[i] << ": " << info_pop_snp_num[i] << "\t";
+		logFile << info_diff_pop[i] << ": " << info_pop_snp_num[i] << "\t";
+	}
+ 	cout << endl;
+	logFile << endl;
+
+	string snp_file;
+	ofstream snpfile;
+	snp_file = out_file + ".panel";
+	snpfile.open(snp_file.c_str(), ios::out);
+	cout << "Saving the sorted SNP panel to [" + snp_file + "]... " << flush;
+	logFile << "Saving the sorted SNP panel to [" + snp_file + "]... " << flush;
+	info_snp_num = 0;
+
+
+	for (auto& item : snp_map) 
+	{
+		snpfile << item.second.info_snp;
+		snpfile << "\t" << item.second.info_pop << "\t" << item.second.info_pop_maf;
+		snpfile  << "\t" << item.second.info_pop_MiA  << "\t" << item.second.info_pop_MaA;
+		snpfile  << "\t" << item.second.chrom << "\t" << item.second.position << endl;
+		info_snp_num++;
+	}
+	cout << "done." << endl << info_snp_num << " SNPs were saved." << endl;
+	logFile << "done." << endl << info_snp_num << " SNPs were saved." << endl;
+	snpfile.close();
+}
+
 };
 
 int main(int argc, char ** argv)
@@ -854,15 +1127,29 @@ int main(int argc, char ** argv)
 	current_time_str = ctime(&current_time);
 	cout << "Start time: " << current_time_str << flush;
 	dat.logFile << "Start time: " << current_time_str;
+	if (dat.flag[16] == 1) 
+	{
+		dat.panel_sort();
+		current_time = time(0);
+		current_time_str = ctime(&current_time);
+		cout << "End time: " << current_time_str << endl;
+		dat.logFile << "End time: " << current_time_str << endl;
+		return 0;
+	}
 	dat.readFAM();
 	dat.readBIM();
 	dat.readREF();
-	if (dat.flag[8] == 1 || dat.flag[3] == 1) dat.allele_stat();
+	if (dat.flag[8] == 1 || dat.flag[3] == 1 || dat.flag[15] == 1) dat.allele_stat();
 	if (dat.flag[8] == 1) dat.allele_freq_output();
 	if (dat.flag[3] == 1)	
 	{
 		dat.pop_snp();
 		dat.pop_snp_output();
+	}
+	if (dat.flag[15] == 1)	
+	{
+		dat.snp_panel();
+		dat.snp_panel_output();
 	}
 	current_time = time(0);
 	current_time_str = ctime(&current_time);
