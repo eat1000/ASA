@@ -41,7 +41,7 @@ const char* delimiter = "\t";
 
 public:
 string ofile = "lai", ifile, suffix = ".lai";
-bool outfile_flag = false, ifile_flag = false, fill_gaps = false, rfmix = false;
+bool outfile_flag = false, ifile_flag = false, fill_gaps = false, rfmix = false, palette_flag=false;
 int from_chr = 1, to_chr = 22;
 ofstream writeLOG;
 vector<string> palette{"#FFFFFF", "#0072B2", "#F0E442", "#009E73", "#56B4E9", "#D55E00", "#CC79A7"};
@@ -98,11 +98,12 @@ LAI(int argc, char *argv[])
 		case 4: ofile = optarg; outfile_flag = true; break;
 		case 5: 		
 		{
+			palette_flag = true;
 			palette.clear();
 			palette.push_back(optarg); 
 			for (int i = optind; i < argc; i++) 
 			{
-				if (argv[i][0] == '-') break;
+				if (argv[i][0] == '-' || argv[i][0] == '\n') break;
 				else palette.push_back(argv[i]);
 			}
 			break;
@@ -142,6 +143,19 @@ LAI(int argc, char *argv[])
 //	writeLOG << "--fill-gaps " << fill_gaps << endl;
 	cout << "--out " << ofile << endl;
 	writeLOG << "--out " << ofile << endl;
+	if (palette_flag)
+	{
+		cout << "--palette";
+		writeLOG << "--palette";
+		for (int i = 0; i < palette.size(); i++) 
+		{
+			palette[i] = "#" + palette[i];
+			cout << " " << palette[i];
+			writeLOG << " " << palette[i];
+		}
+		cout << endl;
+		writeLOG << endl;
+	}
 	if (rfmix)
 	{
 		cout << "--rfmix" << endl;
