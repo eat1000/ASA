@@ -1071,7 +1071,7 @@ void lai()
 	{
 		writefile3 << subid[l];
 		for (int j = 0; j < info_pop_num; j++) writefile3 << "\t" << total_laiv(l, j);
-		for (int j = 0; j < info_pop_num; j++) writefile3 << "\t" << total_n(l, j) << "\t" << total_d(l, j);
+//		for (int j = 0; j < info_pop_num; j++) writefile3 << "\t" << total_n(l, j) << "\t" << total_d(l, j);
 		writefile3 << endl;
 	}
 
