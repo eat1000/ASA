@@ -70,6 +70,6 @@ Haoyue Fu and Gang Shi implemented the local ancestry inference method in v1.2.0
 ## Citations
 [1] Shi G, Kuang Q. Ancestral spectrum analysis with population-specific variants. Front Genet. 2021;12:724638.
 
-[2] Shi G. Insights from the analysis of ancient and modern DNA with population-specific SNPs. https://doi.org/10.21203/rs.3.rs-3447042/v1
+[2] Shi G. Insights from the analysis of ancient and modern DNA with population-specific SNPs. Hum Bio. accepted.
 
-[3] Fu H, Shi G. Local ancestry inference with population-specific SNPs —— A study of admixed populations in the 1000 Genomes Project. In submission. 
+[3] Fu H, Shi G. Local ancestry inference based on population-specific single-nucleotide polymorphisms - A study of admixed populations in the 1000 Genomes Project. Genes (Basel). 2024;15(8):1099. 
